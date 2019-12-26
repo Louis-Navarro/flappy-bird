@@ -52,27 +52,32 @@ class Bird:
     def draw(self, win):
         pg.draw.circle(win, (255, 0, 0), (self.x, self.y), 10)
 
+    @property
+    def rect(self):
+        return pg.Rect(140, self.y - 10, 20, 20)
+
 
 class Pipe:
     def __init__(self, x=400):
         self.len = random.randint(50, 350)
-
-        self.x = x
+        self.rect = pg.Rect(x, 0, 20, self.len)
 
     def update(self):
-        self.x -= 2
+        self.rect[0] -= 2
 
     def draw(self, win):
-        pg.draw.rect(win, (0, 255, 0), (self.x, 0, 20, self.len))
+        pg.draw.rect(win, (0, 255, 0), self.rect)
+
+    def check_collision(self, bird_rect):
+        return self.rect.colliderect(bird_rect)
 
 
 class PipePair(Pipe):
     def __init__(self, pair, x=400):
         super().__init__(x)
-        self.top = pair.len + 150
 
-    def draw(self, win):
-        pg.draw.rect(win, (0, 255, 0), (self.x, self.top, 20, 600 - self.top))
+        self.top = pair.len + 150
+        self.rect = pg.Rect(x, self.top, 20, 600)
 
 
 #############
@@ -90,23 +95,29 @@ def create_pipes():
 def update():
     bird.update()
 
-    if pipes[0].x <= -20:
+    if pipes[0].rect[0] <= -20:
         pipes.pop(0)
         pipes.pop(0)
 
-    if pipes[-1].x <= 200:
+    if pipes[-1].rect[0] <= 200:
         new_pipes = create_pipes()
         pipes.extend(new_pipes)
 
 
 def draw_screen():
-    win.fill((0, 0, 0))
+    global pipes, bird
 
-    bird.draw(win)
+    win.fill((0, 0, 0))
 
     for pipe in pipes:
         pipe.update()
         pipe.draw(win)
+
+        if pipe.check_collision(bird.rect):
+            bird = Bird()
+            pipes = [*create_pipes()]
+
+    bird.draw(win)
 
     pg.display.flip()
 
