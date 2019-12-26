@@ -1,7 +1,7 @@
 A flappy bird game made in Python
 =================================
 
-This is a simple game flappy bird like game I made in Python
+This is a simple flappy bird like game I made in Python
 
 
 ## How to download
