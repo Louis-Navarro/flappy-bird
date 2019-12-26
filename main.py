@@ -93,6 +93,8 @@ def create_pipes():
 
 
 def update():
+    global score
+
     bird.update()
 
     if pipes[0].rect[0] <= -20:
@@ -103,9 +105,12 @@ def update():
         new_pipes = create_pipes()
         pipes.extend(new_pipes)
 
+    if 0 < bird.x - 20 - pipes[0].rect[0] < 3:
+        score += 1
+
 
 def draw_screen():
-    global pipes, bird
+    global pipes, bird, score
 
     win.fill((0, 0, 0))
 
@@ -116,6 +121,10 @@ def draw_screen():
         if pipe.check_collision(bird.rect):
             bird = Bird()
             pipes = [*create_pipes()]
+            score = 0
+
+    text = font.render(f'Score: {score}', True, (255, 255, 255))
+    win.blit(text, (5, 10))
 
     bird.draw(win)
 
@@ -132,11 +141,16 @@ win_height = 600
 win = pg.display.set_mode((win_width, win_height))
 pg.display.set_caption('Flappy bird')
 
+# Font
+font = pg.font.SysFont('flappybirdy', 24)
+
 # Bird
 bird = Bird()
 
 # Pipes
 pipes = [*create_pipes()]
+
+score = 0
 
 #############
 # MAIN LOOP #
