@@ -123,6 +123,11 @@ def draw_screen():
             pipes = [*create_pipes()]
             score = 0
 
+    if bird.y >= 590:
+        bird = Bird()
+        pipes = [*create_pipes()]
+        score = 0
+
     text = font.render(f'Score: {score}', True, (255, 255, 255))
     win.blit(text, (5, 10))
 
