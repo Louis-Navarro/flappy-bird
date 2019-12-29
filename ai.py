@@ -12,7 +12,7 @@ pg.init()
 
 class Bird:
     def __init__(self):
-        self.x = 150
+        self.x = 90
         self.left = self.x - 10
         self.y = 300
 
@@ -22,6 +22,13 @@ class Bird:
         self.jumps = 0
         self.pressed_space = False
 
+        self.images = [
+            pg.image.load('assets/bird-upflap.png'),
+            pg.image.load('assets/bird-midflap.png'),
+            pg.image.load('assets/bird-downflap.png')
+        ]
+        self.im_ind = 0
+
     def jump(self):
         if not self.jumps:
             self.pressed_space = True
@@ -29,6 +36,10 @@ class Bird:
             self.jumps += 1
 
     def update(self):
+        self.im_ind += 1
+        if self.im_ind > 15:
+            self.im_ind = 0
+
         if self.jumps:
             if self.jumps < 6:
                 self.jumps += 1
@@ -49,34 +60,44 @@ class Bird:
         self.y += self.vel
 
     def draw(self, win):
-        pg.draw.circle(win, (255, 0, 0), (self.x, self.y), 10)
+        index = self.im_ind // 5
+        im = self.images[index if index != 3 else 1]
+        im = pg.transform.rotate(im, 5 * -self.vel)
+
+        win.blit(im, (self.x, self.y))
 
     @property
     def rect(self):
-        return pg.Rect(140, self.y - 10, 20, 20)
+        return pg.Rect(self.x, self.y, 34, 24)
 
 
 class Pipe:
     def __init__(self, x=400):
-        self.len = random.randint(50, 350)
-        self.rect = pg.Rect(x, 0, 20, self.len)
+        self.len = random.randint(42, 320)
+        self.pos = [x, -(320 - self.len)]
+
+        self.im = pg.image.load('assets/pipe.png')
+        self.im = pg.transform.rotate(self.im, 180)
 
     def update(self):
-        self.rect[0] -= 2
+        self.pos[0] -= 2
 
     def draw(self, win):
-        pg.draw.rect(win, (0, 255, 0), self.rect)
+        win.blit(self.im, self.pos)
 
     def check_collision(self, bird_rect):
-        return self.rect.colliderect(bird_rect)
+        rect = pg.Rect(*self.pos, *self.im.get_size())
+        return rect.colliderect(bird_rect)
 
 
 class PipePair(Pipe):
     def __init__(self, pair, x=400):
         super().__init__(x)
 
+        self.im = pg.image.load('assets/pipe.png')
+
         self.top = pair.len + 150
-        self.rect = pg.Rect(x, self.top, 20, 600)
+        self.pos[1] = self.top
 
 
 #############
@@ -95,20 +116,21 @@ def draw_screen():
     global pipes, score, run
 
     win.fill((0, 0, 0))
+    win.blit(bg, (0, 0))
 
     if len(birds) > 0:
-        if 0 < birds[0].x - 20 - pipes[0].rect[0] < 3:
+        if 0 < birds[0].x - 34 - pipes[0].pos[0] < 3:
             score += 1
 
-        if pipes[0].rect[0] <= -20:
+        if pipes[0].pos[0] <= -20:
             pipes.pop(0)
             pipes.pop(0)
 
         pipe_ind = 0
-        if pipes[0].rect[0] < 120:
+        if pipes[0].pos[0] < 56:
             pipe_ind = 2
 
-        if pipes[-1].rect[0] <= 200:
+        if pipes[-1].pos[0] <= 200:
             new_pipes = create_pipes()
             pipes.extend(new_pipes)
 
@@ -128,8 +150,8 @@ def draw_screen():
 
             bird.update()
 
-            distance_top = abs(bird.y - pipes[pipe_ind].rect[3])
-            distance_down = abs(bird.y - pipes[pipe_ind + 1].rect[1])
+            distance_top = abs(bird.y - pipes[pipe_ind].len)
+            distance_down = abs(bird.y - pipes[pipe_ind + 1].top)
             output = nets[i].activate((bird.y, distance_top, distance_down))
 
             if output[0] > 0.5:
@@ -137,7 +159,7 @@ def draw_screen():
 
             bird.draw(win)
 
-            if 0 < bird.x - 20 - pipes[0].rect[0] < 3:
+            if 0 < bird.x - 20 - pipes[0].pos[0] < 3:
                 ge[i].fitness += 5
 
             if bird.y >= 590 or bird.y < 0:
@@ -155,6 +177,7 @@ def draw_screen():
         win.blit(text, (5, 50))
 
     else:
+        score = 0
         run = False
 
     pg.display.flip()
@@ -165,10 +188,13 @@ def draw_screen():
 #############
 
 # Window
-win_width = 400
-win_height = 600
+win_width = 288
+win_height = 512
+
 win = pg.display.set_mode((win_width, win_height))
 pg.display.set_caption('Flappy bird')
+
+bg = pg.image.load('assets/background.png')
 
 # Font
 font = pg.font.SysFont('flappybirdy', 24)
