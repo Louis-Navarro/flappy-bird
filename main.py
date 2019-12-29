@@ -10,16 +10,26 @@ pg.init()
 
 class Bird:
     def __init__(self):
-        self.x = 150
+        self.x = 135
         self.y = 300
 
         self.vel = 5
 
         self.jumps = 0
-
         self.pressed_space = False
 
+        self.images = [
+            pg.image.load('assets/bird-upflap.png'),
+            pg.image.load('assets/bird-midflap.png'),
+            pg.image.load('assets/bird-downflap.png')
+        ]
+        self.im_ind = 0
+
     def update(self):
+        self.im_ind += 1
+        if self.im_ind > 15:
+            self.im_ind = 0
+
         if self.jumps:
             if self.jumps < 6:
                 self.jumps += 1
@@ -50,11 +60,15 @@ class Bird:
         self.y += self.vel
 
     def draw(self, win):
-        pg.draw.circle(win, (255, 0, 0), (self.x, self.y), 10)
+        index = self.im_ind // 5
+        im = self.images[index if index != 3 else 1]
+
+        win.blit(im, (self.x, self.y))
+        pg.draw.rect(win, (255, 255, 255), self.rect, 2)
 
     @property
     def rect(self):
-        return pg.Rect(140, self.y - 10, 20, 20)
+        return pg.Rect(self.x, self.y, 34, 24)
 
 
 class Pipe:
