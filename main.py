@@ -73,25 +73,30 @@ class Bird:
 
 class Pipe:
     def __init__(self, x=400):
-        self.len = random.randint(50, 350)
-        self.rect = pg.Rect(x, 0, 20, self.len)
+        self.len = random.randint(42, 320)
+        self.pos = [x, -(320 - self.len)]
+
+        self.im = pg.image.load('assets/pipe.png')
+        self.im = pg.transform.rotate(self.im, 180)
 
     def update(self):
-        self.rect[0] -= 2
+        self.pos[0] -= 2
 
     def draw(self, win):
-        pg.draw.rect(win, (0, 255, 0), self.rect)
+        win.blit(self.im, self.pos)
 
     def check_collision(self, bird_rect):
-        return self.rect.colliderect(bird_rect)
+        rect = pg.Rect(*self.pos, *self.im.get_size())
+        return rect.colliderect(bird_rect)
 
 
 class PipePair(Pipe):
     def __init__(self, pair, x=400):
         super().__init__(x)
 
-        self.top = pair.len + 150
-        self.rect = pg.Rect(x, self.top, 20, 600)
+        self.im = pg.image.load('assets/pipe.png')
+
+        self.pos[1] = pair.len + 150
 
 
 #############
@@ -111,15 +116,15 @@ def update():
 
     bird.update()
 
-    if pipes[0].rect[0] <= -20:
+    if pipes[0].pos[0] <= -20:
         pipes.pop(0)
         pipes.pop(0)
 
-    if pipes[-1].rect[0] <= 200:
+    if pipes[-1].pos[0] <= 200:
         new_pipes = create_pipes()
         pipes.extend(new_pipes)
 
-    if 0 < bird.x - 20 - pipes[0].rect[0] < 3:
+    if 0 < bird.x - pipes[0].pos[0] < 3:
         score += 1
 
 
