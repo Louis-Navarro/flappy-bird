@@ -64,7 +64,6 @@ class Bird:
         im = self.images[index if index != 3 else 1]
 
         win.blit(im, (self.x, self.y))
-        pg.draw.rect(win, (255, 255, 255), self.rect, 2)
 
     @property
     def rect(self):
