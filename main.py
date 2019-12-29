@@ -10,7 +10,7 @@ pg.init()
 
 class Bird:
     def __init__(self):
-        self.x = 135
+        self.x = 90
         self.y = 300
 
         self.vel = 5
@@ -127,6 +127,7 @@ def draw_screen():
     global pipes, bird, score
 
     win.fill((0, 0, 0))
+    win.blit(bg, (0, 0))
 
     for pipe in pipes:
         pipe.update()
@@ -155,10 +156,13 @@ def draw_screen():
 #############
 
 # Window
-win_width = 400
-win_height = 600
+win_width = 288
+win_height = 512
+
 win = pg.display.set_mode((win_width, win_height))
 pg.display.set_caption('Flappy bird')
+
+bg = pg.image.load('assets/background.png')
 
 # Font
 font = pg.font.SysFont('flappybirdy', 24)
@@ -169,6 +173,7 @@ bird = Bird()
 # Pipes
 pipes = [*create_pipes()]
 
+# Game
 score = 0
 
 #############
