@@ -62,6 +62,7 @@ class Bird:
     def draw(self, win):
         index = self.im_ind // 5
         im = self.images[index if index != 3 else 1]
+        im = pg.transform.rotate(im, 5 * -self.vel)
 
         win.blit(im, (self.x, self.y))
 
