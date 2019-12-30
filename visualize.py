@@ -11,7 +11,8 @@ import numpy as np
 def plot_stats(statistics, ylog=False, view=False, filename='avg_fitness.svg'):
     """ Plots the population's average and best fitness. """
     if plt is None:
-        warnings.warn("This display is not available due to a missing optional dependency (matplotlib)")
+        warnings.warn("This display is not available due to a missing ",
+                      "optional dependency (matplotlib)")
         return
 
     generation = range(len(statistics.most_fit_genomes))
@@ -91,7 +92,8 @@ def plot_spikes(spikes, view=False, filename=None, title=None):
 def plot_species(statistics, view=False, filename='speciation.svg'):
     """ Visualizes speciation throughout evolution. """
     if plt is None:
-        warnings.warn("This display is not available due to a missing optional dependency (matplotlib)")
+        warnings.warn("This display is not available due to",
+                      "a missing optional dependency (matplotlib)")
         return
 
     species_sizes = statistics.get_species_sizes()
@@ -113,12 +115,23 @@ def plot_species(statistics, view=False, filename='speciation.svg'):
     plt.close()
 
 
-def draw_net(config, genome, view=False, filename=None, node_names=None, show_disabled=True, prune_unused=False,
-             node_colors=None, fmt='svg'):
-    """ Receives a genome and draws a neural network with arbitrary topology. """
+def draw_net(config,
+             genome,
+             view=False,
+             filename=None,
+             node_names=None,
+             show_disabled=True,
+             prune_unused=False,
+             node_colors=None,
+             fmt='svg'):
+    """
+    Receives a genome and draws a neural network with arbitrary topology.
+    """
     # Attributes for network nodes.
     if graphviz is None:
-        warnings.warn("This display is not available due to a missing optional dependency (graphviz)")
+        warnings.warn(
+            "This display is not available due to a missing optional",
+            "dependency (graphviz)")
         return
 
     if node_names is None:
@@ -135,7 +148,8 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
         'shape': 'circle',
         'fontsize': '9',
         'height': '0.2',
-        'width': '0.2'}
+        'width': '0.2'
+    }
 
     dot = graphviz.Digraph(format=fmt, node_attr=node_attrs)
 
@@ -143,14 +157,21 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
     for k in config.genome_config.input_keys:
         inputs.add(k)
         name = node_names.get(k, str(k))
-        input_attrs = {'style': 'filled', 'shape': 'box', 'fillcolor': node_colors.get(k, 'lightgray')}
+        input_attrs = {
+            'style': 'filled',
+            'shape': 'box',
+            'fillcolor': node_colors.get(k, 'lightgray')
+        }
         dot.node(name, _attributes=input_attrs)
 
     outputs = set()
     for k in config.genome_config.output_keys:
         outputs.add(k)
         name = node_names.get(k, str(k))
-        node_attrs = {'style': 'filled', 'fillcolor': node_colors.get(k, 'lightblue')}
+        node_attrs = {
+            'style': 'filled',
+            'fillcolor': node_colors.get(k, 'lightblue')
+        }
 
         dot.node(name, _attributes=node_attrs)
 
@@ -176,13 +197,12 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
         if n in inputs or n in outputs:
             continue
 
-        attrs = {'style': 'filled',
-                 'fillcolor': node_colors.get(n, 'white')}
+        attrs = {'style': 'filled', 'fillcolor': node_colors.get(n, 'white')}
         dot.node(str(n), _attributes=attrs)
 
     for cg in genome.connections.values():
         if cg.enabled or show_disabled:
-            #if cg.input not in used_nodes or cg.output not in used_nodes:
+            # if cg.input not in used_nodes or cg.output not in used_nodes:
             #    continue
             input, output = cg.key
             a = node_names.get(input, str(input))
@@ -190,7 +210,13 @@ def draw_net(config, genome, view=False, filename=None, node_names=None, show_di
             style = 'solid' if cg.enabled else 'dotted'
             color = 'green' if cg.weight > 0 else 'red'
             width = str(0.1 + abs(cg.weight / 5.0))
-            dot.edge(a, b, _attributes={'style': style, 'color': color, 'penwidth': width})
+            dot.edge(a,
+                     b,
+                     _attributes={
+                         'style': style,
+                         'color': color,
+                         'penwidth': width
+                     })
 
     dot.render(filename, view=view)
 
