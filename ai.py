@@ -344,31 +344,29 @@ def run():
                                 config_path)
 
     save_file = os.path.join(local_dir, 'saves', 'save-0')
+    checkpointer = neat.Checkpointer(5, filename_prefix='saves/save-')
 
     if os.path.isfile(save_file):
-        checkpointer = neat.Checkpointer(5, filename_prefix='saves/save-')
         p = checkpointer.restore_checkpoint(save_file)
-        winner = p.run(eval_genomes)
 
     else:
         p = neat.Population(config)
 
-        printer = neat.StdOutReporter(True)
-        p.add_reporter(printer)
+    printer = neat.StdOutReporter(True)
+    p.add_reporter(printer)
 
-        logger = LogReporter()
-        p.add_reporter(logger)
+    logger = LogReporter()
+    p.add_reporter(logger)
 
-        stats = neat.StatisticsReporter()
-        p.add_reporter(stats)
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
 
-        checkpointer = neat.Checkpointer(5, filename_prefix='saves/save-')
-        p.add_reporter(checkpointer)
+    p.add_reporter(checkpointer)
 
-        winner = p.run(eval_genomes, 50)
+    winner = p.run(eval_genomes, 50)
     print(f'Winner is : {winner}')
 
-    checkpointer.save_checkpoint(p.config, p.population, p.species, 0)
+    checkpointer.save_checkpoint(p.config, p.population, p.species, -1)
 
     node_names = {
         0: 'TanH',
