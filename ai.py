@@ -2,6 +2,7 @@ import random
 import pygame as pg
 import os
 import neat
+import visualize
 
 pg.init()
 
@@ -247,10 +248,23 @@ def run(config_path):
 
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
-    p.add_reporter(neat.StatisticsReporter())
+
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
 
     winner = p.run(eval_genome, 50)
     print(f'Winner is : {winner}')
+
+    node_names = {
+        0: 'TanH',
+        -1: 'Distance to bottom pipe',
+        -2: 'Distance to top pipe',
+        -3: 'Bird Y-Position'
+    }
+
+    visualize.draw_net(config, winner, True, node_names=node_names)
+    visualize.plot_stats(stats, False, True)
+    visualize.plot_species(stats, True)
 
 
 if __name__ == "__main__":
