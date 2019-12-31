@@ -202,10 +202,10 @@ def eval_genome(genomes, config):
         ge.append(g)
 
     run = True
-    clock = pg.time.Clock()
+    # clock = pg.time.Clock()
 
     while run:
-        clock.tick(60)
+        # clock.tick(60)
 
         draw_screen()
 
