@@ -349,6 +349,9 @@ def run(config_path):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
+    checkpointer = neat.Checkpointer(5, filename_prefix='saves/save-')
+    p.add_reporter(checkpointer)
+
     winner = p.run(eval_genomes, 50)
     print(f'Winner is : {winner}')
 
