@@ -72,7 +72,7 @@ class Bird:
 
 
 class Pipe:
-    def __init__(self, x=400):
+    def __init__(self, x=288):
         self.len = random.randint(42, 320)
         self.pos = [x, -(320 - self.len)]
 
@@ -91,7 +91,7 @@ class Pipe:
 
 
 class PipePair(Pipe):
-    def __init__(self, pair, x=400):
+    def __init__(self, pair, x=288):
         super().__init__(x)
 
         self.im = pg.image.load('assets/pipe.png')
@@ -130,7 +130,7 @@ def draw_screen():
         if pipes[0].pos[0] < 56:
             pipe_ind = 2
 
-        if pipes[-1].pos[0] <= 200:
+        if pipes[-1].pos[0] <= 88:
             new_pipes = create_pipes()
             pipes.extend(new_pipes)
 
