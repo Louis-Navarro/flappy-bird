@@ -3,4 +3,5 @@ __pycache__/*
 *.svg
 *.gv
 saves/*
+!saves/save-0
 log.txt
