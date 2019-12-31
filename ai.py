@@ -147,8 +147,6 @@ def draw_screen():
                     ge.pop(i)
 
         for i, bird in enumerate(birds):
-            ge[i].fitness += 0.1
-
             bird.update()
 
             distance_top = abs(bird.y - pipes[pipe_ind].len)
@@ -184,7 +182,7 @@ def draw_screen():
     pg.display.flip()
 
 
-def eval_genome(genomes, config):
+def eval_genomes(genomes, config):
     global nets, ge, birds, run, pipes, gen
 
     gen += 1
@@ -253,7 +251,7 @@ def run(config_path):
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
 
-    winner = p.run(eval_genome, 50)
+    winner = p.run(eval_genomes, 50)
     print(f'Winner is : {winner}')
 
     node_names = {
