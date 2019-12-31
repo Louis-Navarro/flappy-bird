@@ -355,6 +355,8 @@ def run(config_path):
     winner = p.run(eval_genomes, 50)
     print(f'Winner is : {winner}')
 
+    checkpointer.save_checkpoint(p.config, p, p.species, -1)
+
     node_names = {
         0: 'TanH',
         -1: 'Distance to bottom pipe',
