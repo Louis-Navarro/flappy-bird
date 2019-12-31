@@ -120,7 +120,7 @@ def draw_screen():
     win.blit(bg, (0, 0))
 
     if len(birds) > 0:
-        if 0 < birds[0].x - 34 - pipes[0].pos[0] < 3:
+        if 0 < birds[0].x - pipes[0].pos[0] < 3:
             score += 1
 
         if pipes[0].pos[0] <= -20:
@@ -160,7 +160,7 @@ def draw_screen():
 
             bird.draw(win)
 
-            if 0 < bird.x - 20 - pipes[0].pos[0] < 3:
+            if 0 < bird.x - pipes[0].pos[0] < 3:
                 ge[i].fitness += 5
 
             if bird.y >= 590 or bird.y < 0:
@@ -180,7 +180,6 @@ def draw_screen():
     else:
         score = 0
         run = False
-    global nets, ge, birds, run, pipes, gen
 
 
 def eval_genome(genomes, config):
