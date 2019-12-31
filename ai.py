@@ -366,7 +366,7 @@ def run():
     winner = p.run(eval_genomes, 50)
     print(f'Winner is : {winner}')
 
-    checkpointer.save_checkpoint(p.config, p.population, p.species, -1)
+    checkpointer.save_checkpoint(p.config, p.population, p.species, 0)
 
     node_names = {
         0: 'TanH',
