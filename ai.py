@@ -205,14 +205,15 @@ def eval_genomes(genomes, config):
     while run:
         # clock.tick(60)
 
+        if score > 2_000:
+            run = False
+
         draw_screen()
 
         for e in pg.event.get():
             if e.type == pg.QUIT:
                 pg.quit()
                 quit()
-
-    pg.display.flip()
 
 
 #############
