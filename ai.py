@@ -179,36 +179,10 @@ def draw_screen():
     else:
         score = 0
         run = False
-
-    pg.display.flip()
-
-
-#############
-# VARIABLES #
-#############
-
-# Window
-win_width = 288
-win_height = 512
-
-win = pg.display.set_mode((win_width, win_height))
-pg.display.set_caption('Flappy bird')
-
-bg = pg.image.load('assets/background.png')
-
-# Font
-font = pg.font.SysFont('flappybirdy', 24)
-
-# Game
-score = 0
-gen = 0
-
-#############
-# MAIN LOOP #
-#############
+    global nets, ge, birds, run, pipes, gen
 
 
-def main(genomes, config):
+def eval_genome(genomes, config):
     global nets, ge, birds, run, pipes, gen
 
     gen += 1
@@ -238,6 +212,33 @@ def main(genomes, config):
                 pg.quit()
                 quit()
 
+    pg.display.flip()
+
+
+#############
+# VARIABLES #
+#############
+
+# Window
+win_width = 288
+win_height = 512
+
+win = pg.display.set_mode((win_width, win_height))
+pg.display.set_caption('Flappy bird')
+
+bg = pg.image.load('assets/background.png')
+
+# Font
+font = pg.font.SysFont('flappybirdy', 24)
+
+# Game
+score = 0
+gen = 0
+
+#############
+# MAIN LOOP #
+#############
+
 
 def run(config_path):
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
@@ -248,7 +249,7 @@ def run(config_path):
     p.add_reporter(neat.StdOutReporter(True))
     p.add_reporter(neat.StatisticsReporter())
 
-    winner = p.run(main, 50)
+    winner = p.run(eval_genome, 50)
     print(f'Winner is : {winner}')
 
 
