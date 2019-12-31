@@ -181,6 +181,8 @@ def draw_screen():
         score = 0
         run = False
 
+    pg.display.flip()
+
 
 def eval_genome(genomes, config):
     global nets, ge, birds, run, pipes, gen
