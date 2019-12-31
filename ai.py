@@ -335,27 +335,40 @@ gen = 0
 #############
 
 
-def run(config_path):
+def run():
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, 'config-feedforward.txt')
+
     config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
                                 neat.DefaultSpeciesSet, neat.DefaultStagnation,
                                 config_path)
 
-    p = neat.Population(config)
-    p.add_reporter(neat.StdOutReporter(True))
+    save_file = os.path.join(local_dir, 'saves', 'save-0')
 
-    logger = LogReporter()
-    p.add_reporter(logger)
+    if os.path.isfile(save_file):
+        checkpointer = neat.Checkpointer(5, filename_prefix='saves/save-')
+        p = checkpointer.restore_checkpoint(save_file)
+        winner = p.run(eval_genomes)
 
-    stats = neat.StatisticsReporter()
-    p.add_reporter(stats)
+    else:
+        p = neat.Population(config)
 
-    checkpointer = neat.Checkpointer(5, filename_prefix='saves/save-')
-    p.add_reporter(checkpointer)
+        printer = neat.StdOutReporter(True)
+        p.add_reporter(printer)
 
-    winner = p.run(eval_genomes, 50)
+        logger = LogReporter()
+        p.add_reporter(logger)
+
+        stats = neat.StatisticsReporter()
+        p.add_reporter(stats)
+
+        checkpointer = neat.Checkpointer(5, filename_prefix='saves/save-')
+        p.add_reporter(checkpointer)
+
+        winner = p.run(eval_genomes, 50)
     print(f'Winner is : {winner}')
 
-    checkpointer.save_checkpoint(p.config, p, p.species, -1)
+    checkpointer.save_checkpoint(p.config, p.population, p.species, 0)
 
     node_names = {
         0: 'TanH',
@@ -370,6 +383,4 @@ def run(config_path):
 
 
 if __name__ == "__main__":
-    local_dir = os.path.dirname(__file__)
-    config_path = os.path.join(local_dir, 'config-feedforward.txt')
-    run(config_path)
+    run()
