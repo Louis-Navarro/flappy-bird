@@ -3,6 +3,9 @@ import pygame as pg
 import os
 import neat
 import visualize
+import time
+from neat.math_util import mean, stdev
+from neat.six_util import itervalues, iterkeys
 
 pg.init()
 
@@ -99,6 +102,97 @@ class PipePair(Pipe):
 
         self.top = pair.len + 150
         self.pos[1] = self.top
+
+
+class LogReporter(neat.reporting.BaseReporter):
+    def __init__(self, filename='log.txt'):
+        self.filename = filename
+        self.generation = None
+        self.generation_start_time = None
+        self.generation_times = []
+        self.num_extinctions = 0
+
+    def start_generation(self, generation):
+        with open(self.filename, 'a') as file:
+            self.generation = generation
+            file.write('\n ****** Running generation {0} ****** \n\n'.format(
+                generation))
+            self.generation_start_time = time.time()
+
+    def end_generation(self, config, population, species_set):
+        ng = len(population)
+        ns = len(species_set.species)
+
+        with open(self.filename, 'a') as file:
+            file.write(
+                'Population of {0:d} members in {1:d} species:\n'.format(
+                    ng, ns))
+            sids = list(iterkeys(species_set.species))
+            sids.sort()
+            file.write("   ID   age  size  fitness  adj fit  stag\n")
+            file.write("  ====  ===  ====  =======  =======  ====\n")
+            for sid in sids:
+                s = species_set.species[sid]
+                a = self.generation - s.created
+                n = len(s.members)
+                f = "--" if s.fitness is None else "{:.1f}".format(s.fitness)
+                af = "--" if s.adjusted_fitness is None else "{:.3f}".format(
+                    s.adjusted_fitness)
+                st = self.generation - s.last_improved
+                file.write(
+                    "  {: >4}  {: >3}  {: >4}  {: >7}  {: >7}  {: >4}\n".
+                    format(sid, a, n, f, af, st))
+
+            elapsed = time.time() - self.generation_start_time
+            self.generation_times.append(elapsed)
+            self.generation_times = self.generation_times[-10:]
+            average = sum(self.generation_times) / len(self.generation_times)
+            file.write('Total extinctions: {0:d}\n'.format(
+                self.num_extinctions))
+            if len(self.generation_times) > 1:
+                file.write(
+                    "Generation time: {0:.3f} sec ({1:.3f} average)\n".format(
+                        elapsed, average))
+            else:
+                file.write("Generation time: {0:.3f} sec\n".format(elapsed))
+
+    def post_evaluate(self, config, population, species, best_genome):
+        # pylint: disable=no-self-use
+        with open(self.filename, 'a') as file:
+            fitnesses = [c.fitness for c in itervalues(population)]
+            fit_mean = mean(fitnesses)
+            fit_std = stdev(fitnesses)
+            best_species_id = species.get_species_id(best_genome.key)
+            file.write(' '.join(
+                ('Population\'s average fitness:',
+                 '{0:3.5f} stdev: {1:3.5f}'.format(fit_mean, fit_std), '\n')))
+            file.write(
+                'Best fitness: {0:3.5f} - size: {1!r} - species {2} - id {3}\n'
+                .format(best_genome.fitness, best_genome.size(),
+                        best_species_id, best_genome.key))
+
+    def complete_extinction(self):
+        with open(self.filename, 'a') as file:
+            self.num_extinctions += 1
+            file.write('All species extinct.\n')
+
+    def found_solution(self, config, generation, best):
+        with open(self.filename, 'a') as file:
+            file.write(' '.join(
+                ('\nBest individual in generation {0} meets'.format(
+                    self.generation),
+                 'fitness threshold - complexity: {0!r}'.format(best.size()),
+                 '\n')))
+
+    def species_stagnant(self, sid, species):
+        with open(self.filename, 'a') as file:
+            file.write(
+                "\nSpecies {0} with {1} members is stagnated: removing it\n".
+                format(sid, len(species.members)))
+
+    def info(self, msg):
+        with open(self.filename, 'a') as file:
+            file.write(str(msg) + '\n')
 
 
 #############
@@ -248,6 +342,9 @@ def run(config_path):
 
     p = neat.Population(config)
     p.add_reporter(neat.StdOutReporter(True))
+
+    logger = LogReporter()
+    p.add_reporter(logger)
 
     stats = neat.StatisticsReporter()
     p.add_reporter(stats)
